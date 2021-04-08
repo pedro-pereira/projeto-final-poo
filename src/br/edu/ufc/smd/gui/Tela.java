@@ -9,7 +9,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -26,6 +29,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import br.edu.ufc.smd.entidades.Medico;
+import br.edu.ufc.smd.entidades.Paciente;
 import br.edu.ufc.smd.entidades.ProfissionalSaude;
 
 public class Tela extends JPanel {
@@ -117,6 +121,7 @@ public class Tela extends JPanel {
 	
 	// Objetos para "memória"
 	List<ProfissionalSaude> listaProfissionais;
+	List<Paciente>listaPacientes;
 	
 	private void criarJanela() {
 		panelProfissional = makeTextPanel("Profissional");
@@ -304,7 +309,19 @@ public class Tela extends JPanel {
      	btSalvarPct.addActionListener(new ActionListener(){
 	    	public void actionPerformed(ActionEvent e){  
 	    		// Lógica aqui...
-	    		System.out.println("Faço paciente...");
+	    		
+	    		String textoDoUsuario = tfNascimento.getText();
+	    		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    		Date nascimento = new Date();
+				try {
+					nascimento = simpleDateFormat.parse(textoDoUsuario);
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+	    		
+	    		listaPacientes.add(new Paciente(tfNomePct.getText(), nascimento, tfTelefonePct.getText(), tfEnderecoPct.getText()));	    		
+	    		TableModelPaciente modeloPaciente = new TableModelPaciente(listaPacientes);
+	    		tabelaPct.setModel(modeloPaciente);
 	        }
 	    });
 
@@ -527,6 +544,7 @@ public class Tela extends JPanel {
     public Tela() {
         super(new GridLayout(1, 1));
         listaProfissionais = new ArrayList<ProfissionalSaude>();
+        listaPacientes = new ArrayList<Paciente>();
         tabbedPane = new JTabbedPane();
       
         criarJanela();
