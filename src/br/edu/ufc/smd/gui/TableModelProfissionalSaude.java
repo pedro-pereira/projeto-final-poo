@@ -4,15 +4,17 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import br.edu.ufc.smd.entidades.Enfermeiro;
 import br.edu.ufc.smd.entidades.Medico;
 import br.edu.ufc.smd.entidades.ProfissionalSaude;
+import br.edu.ufc.smd.entidades.Tecnico;
 
-class TableModelMedico extends AbstractTableModel {
+class TableModelProfissionalSaude extends AbstractTableModel {
 
 	List<ProfissionalSaude> profissionais;
 	private static final String[] COLUMN_NAMES = { "Perfil", "Crm", "Nome", "Contato" };
 
-	public TableModelMedico(List<ProfissionalSaude> list) {
+	public TableModelProfissionalSaude(List<ProfissionalSaude> list) {
 		profissionais = list;
 	}
 
@@ -30,14 +32,19 @@ class TableModelMedico extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int column) {
 		ProfissionalSaude profissionalSaude = null;
-		profissionalSaude = (Medico) profissionais.get(row);
+		profissionalSaude = profissionais.get(row);
  
 		switch (column) {
- 
 			case 0:
-				return "Médico";
+				if(profissionalSaude instanceof Medico) {
+					return "Médico";
+				} else if(profissionalSaude instanceof Enfermeiro) {
+					return "Enfermeiro";
+				} else if(profissionalSaude instanceof Tecnico) {
+					return "Técnico";
+				}
 			case 1:
-				return ((Medico) profissionalSaude).getCrm();
+				return profissionalSaude.getRegistroConselho();
 			case 2:
 				return profissionalSaude.getNome();
 			case 3:

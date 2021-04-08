@@ -32,12 +32,13 @@ public abstract class ProfissionalSaude {
 		this.registroConselho = registroConselho;
 	}
 	
+	public void atender(Paciente paciente) {
+		System.out.println(nome + " atendeu o paciente.");
+	}
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
 		return nome;
 	}
-	
-	
-	
 }
