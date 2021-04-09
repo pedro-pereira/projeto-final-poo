@@ -1,38 +1,41 @@
 package br.edu.ufc.smd.entidades;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Date;
 
 public class Atendimento {
 	
-	private LocalDate data;
+	private Date data;
 	
-	private LocalTime hora;
+	private Date hora;
 	
 	private Paciente paciente;
 	
 	private ProfissionalSaude profissionalSaude;
+	
+	public Atendimento() {
+		
+	}
 
-	public Atendimento(LocalDate data, LocalTime hora, Paciente paciente, ProfissionalSaude profissionalSaude) {
+	public Atendimento(Date data, Date hora, Paciente paciente, ProfissionalSaude profissionalSaude) {
 		setData(data);
 		setHora(hora);
 		setPaciente(paciente);
 		setProfissionalSaude(profissionalSaude);
 	}
 
-	public LocalDate getData() {
+	public Date getData() {
 		return data;
 	}
 	
-	public void setData(LocalDate data) {
+	public void setData(Date data) {
 		this.data = data;
 	}
 	
-	public LocalTime getHora() {
+	public Date getHora() {
 		return hora;
 	}
 	
-	public void setHora(LocalTime hora) {
+	public void setHora(Date hora) {
 		this.hora = hora;
 	}
 	
@@ -52,7 +55,9 @@ public class Atendimento {
 		this.profissionalSaude = profissionalSaude;
 	}
 	
-	public void registrar() {
+	public void registrar(Paciente paciente, ProfissionalSaude profissionalSaude) {
+		this.paciente = paciente;
+		this.profissionalSaude = profissionalSaude;
 		System.out.println("Atendimento registrado!");
 	}
 }

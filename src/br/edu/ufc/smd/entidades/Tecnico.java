@@ -13,7 +13,7 @@ public class Tecnico extends ProfissionalSaude {
 		super.registroConselho = Utils.formatarRegistroCoren(registroConselho);
 	}
 	
-	public void coletar(Exame exame) {
-		System.out.println("Tecnico coletou o exame!");
+	public void coletar(Exame exame, Paciente paciente) {
+		System.out.println("O técnico " + this.getNome() + " coletou o exame " + exame.getDescricao() + ".");
 	}
 }

@@ -27,7 +27,6 @@ class TableModelExame extends AbstractTableModel {
 		return exames.size();
 	}
 
-	// this method is called to set the value of each cell
 	@Override
 	public Object getValueAt(int row, int column) {
 		Exame exame = null;
@@ -51,10 +50,8 @@ class TableModelExame extends AbstractTableModel {
 		return "";
 	}
 
-	// This method will be used to display the name of columns
 	 @Override
 	    public String getColumnName(int column) {
-		    System.out.println(COLUMN_NAMES[column]);
 	        return COLUMN_NAMES[column];
 	    }
 }

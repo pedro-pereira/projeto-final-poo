@@ -14,6 +14,6 @@ public class Medico extends ProfissionalSaude {
 	}
 
 	public void realizaExame(Paciente paciente, Exame exame) {
-		System.out.println("Médico realizou exame!");
+		System.out.println("O médico " + this.getNome() + " realizou o exame " + exame.getDescricao() + " no paciente " + paciente.getNome());
 	}
 }

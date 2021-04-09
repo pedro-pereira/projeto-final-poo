@@ -9,13 +9,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+import java.util.Properties;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -24,11 +22,18 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SpinnerDateModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.text.DateFormatter;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 import br.edu.ufc.smd.entidades.Atendimento;
 import br.edu.ufc.smd.entidades.Enfermeiro;
@@ -42,14 +47,14 @@ import br.edu.ufc.smd.entidades.Tecnico;
 
 public class Tela extends JPanel {
 
+	// Componentes para criar as abas
 	JTabbedPane tabbedPane;
-
 	JComponent panelProfissional;
 	JComponent panelPaciente;
 	JComponent panelExame;
 	JComponent panelAtendimento;
 
-	// Profissional
+	// Componentes para a aba "Profissional"
 	String[] perfilProfissional = { "MEDICO", "ENFERMEIRO", "TECNICO" };
 	JPanel panelPerfil;
 	JLabel lbPerfil;
@@ -69,13 +74,14 @@ public class Tela extends JPanel {
 	JTable tabelaProfis;
 	JPanel panelFormProfis;
 
-	// Paciente
+	// Componentes para a aba "Paciente"
 	JPanel panelNomePct;
 	JLabel lbNomePct;
 	JTextField tfNomePct;
 	JPanel panelNascimento;
 	JLabel lbNascimento;
-	JTextField tfNascimento;
+	JDatePanelImpl datePanel;
+ 	JDatePickerImpl datePicker;
 	JPanel panelTelefonePct;
 	JLabel lbTelefonePct;
 	JTextField tfTelefonePct;
@@ -88,7 +94,7 @@ public class Tela extends JPanel {
 	JTable tabelaPct;
 	JPanel panelListaPct;
 
-	// Exame
+	// Componentes para a aba "Exame"
 	String[] tipoExame = { "LABORATORIAL", "IMAGEM" };
 	JPanel panelIdentificador;
 	JLabel lbIdentificador;
@@ -108,18 +114,19 @@ public class Tela extends JPanel {
 	JTable tabelaExame;
 	JPanel panelFormExame;
 
-	// Atendimento
+	// Componentes para a aba "Atendimento"
 	JPanel panelData;
 	JLabel lbData;
 	JLabel lbDataHint;
-	JTextField tfData;
+	JDatePanelImpl datePanelAtd;
+ 	JDatePickerImpl datePickerAtd;
 	JPanel panelHora;
 	JLabel lbHora;
 	JLabel lbHoraHint;
 	JTextField tfHora;
 	JPanel panelPacienteAtd;
 	JLabel lbPacienteAtd;
-	JComboBox<Paciente> cbPaciente;
+	JComboBox cbPaciente;
 	JComboBox<ProfissionalSaude> cbProfissional;
 	JPanel panelProfissionalAtd;
 	JLabel lbProfissionalAtd;
@@ -129,33 +136,34 @@ public class Tela extends JPanel {
 	JTable tabelaAtd;
 	JPanel panelFormAtd;
 
-	// Objetos para "memória"
+	// Listas de objetos
 	List<ProfissionalSaude> listaProfissionais;
+	List<Paciente> listaPacientes;
 	List<Exame> listaExames;
 	List<Atendimento> listaAtendimentos;
 	
 	private void criarJanela() {
 		panelProfissional = makeTextPanel("Profissional");
-		tabbedPane.addTab("Profissional", null, panelProfissional, "Does nothing");
+		tabbedPane.addTab("Profissional", null, panelProfissional, "Profissional");
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 		panelPaciente = makeTextPanel("Paciente");
-		tabbedPane.addTab("Paciente", null, panelPaciente, "Does twice as much nothing");
+		tabbedPane.addTab("Paciente", null, panelPaciente, "Paciente");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 		panelExame = makeTextPanel("Exame");
-		tabbedPane.addTab("Exame", null, panelExame, "Still does nothing");
+		tabbedPane.addTab("Exame", null, panelExame, "Exame");
 		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
 		panelAtendimento = makeTextPanel("Atendimento");
 		panelAtendimento.setPreferredSize(new Dimension(410, 50));
-		tabbedPane.addTab("Atendimento", null, panelAtendimento, "Does nothing at all");
+		tabbedPane.addTab("Atendimento", null, panelAtendimento, "Atendimento");
 		tabbedPane.setMnemonicAt(3, KeyEvent.VK_4);
 
-		// Add the tabbed pane to this panel.
+		// Adiciona o tabbed pane à janela.
 		add(tabbedPane);
 
-		// The following line enables to use scrolling tabs.
+		// Habilita a rolagem nas abas.
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	}
 
@@ -164,7 +172,7 @@ public class Tela extends JPanel {
 		panelPerfil.setLayout(new FlowLayout());
 
 		lbPerfil = new JLabel("Perfil");
-		lbPerfil.setPreferredSize(new Dimension(50, 24));
+		lbPerfil.setPreferredSize(new Dimension(100, 24));
 		lbPerfil.setVisible(true);
 		panelPerfil.add(lbPerfil);
 
@@ -190,7 +198,7 @@ public class Tela extends JPanel {
 		panelRegistro.setLayout(new FlowLayout());
 
 		lbRegistro = new JLabel("Registro");
-		lbRegistro.setPreferredSize(new Dimension(50, 24));
+		lbRegistro.setPreferredSize(new Dimension(100, 24));
 		lbRegistro.setVisible(true);
 		panelRegistro.add(lbRegistro);
 
@@ -202,7 +210,7 @@ public class Tela extends JPanel {
 		panelNomeProfis.setLayout(new FlowLayout());
 
 		lbNomeProfis = new JLabel("Nome");
-		lbNomeProfis.setPreferredSize(new Dimension(50, 24));
+		lbNomeProfis.setPreferredSize(new Dimension(100, 24));
 		lbNomeProfis.setVisible(true);
 		panelNomeProfis.add(lbNomeProfis);
 
@@ -214,7 +222,7 @@ public class Tela extends JPanel {
 		panelContatoProfis.setLayout(new FlowLayout());
 
 		lbContatoProfis = new JLabel("Contato");
-		lbContatoProfis.setPreferredSize(new Dimension(50, 24));
+		lbContatoProfis.setPreferredSize(new Dimension(100, 24));
 		lbContatoProfis.setVisible(true);
 		panelContatoProfis.add(lbContatoProfis);
 
@@ -232,10 +240,15 @@ public class Tela extends JPanel {
 		// Evento do botão Adicionar
 		btSalvarProfis.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Lógica aqui...
+				
+				/**
+				 * O atributo "listaProfissionais" é do tipo "ProfissionalSaude". 
+				 * Como as classes "Medico", "Enfermeiro" e "Tecnico" são subclasses de "ProfissionalSaude", 
+				 * instâcias dessas classes podem ser adcionadas à "listaProfissionais".
+				 */
 				if (cbPerfis.getSelectedItem().equals("ENFERMEIRO")) {
-					listaProfissionais.add(
-							new Enfermeiro(tfRegistro.getText(), tfNomeProfis.getText(), tfContatoProfis.getText()));
+					listaProfissionais
+							.add(new Enfermeiro(tfRegistro.getText(), tfNomeProfis.getText(), tfContatoProfis.getText()));
 				} else if (cbPerfis.getSelectedItem().equals("MEDICO")) {
 					listaProfissionais
 							.add(new Medico(tfRegistro.getText(), tfNomeProfis.getText(), tfContatoProfis.getText()));
@@ -244,6 +257,7 @@ public class Tela extends JPanel {
 							.add(new Tecnico(tfRegistro.getText(), tfNomeProfis.getText(), tfContatoProfis.getText()));
 				}
 				
+				// Para desenhar a tabela.
 				TableModelProfissionalSaude modeloProfissionalSaude = new TableModelProfissionalSaude(listaProfissionais);
 				tabelaProfis.setModel(modeloProfissionalSaude);
 			}
@@ -273,95 +287,101 @@ public class Tela extends JPanel {
 	private void criarPainelPaciente() {
 		panelNomePct = new JPanel();
 		panelNomePct.setLayout(new FlowLayout());
-
+     		
 		lbNomePct = new JLabel("Nome");
-		lbNomePct.setPreferredSize(new Dimension(50, 24));
+		lbNomePct.setPreferredSize(new Dimension(100, 24));
 		lbNomePct.setVisible(true);
-		panelNomePct.add(lbNomePct);
+     	panelNomePct.add(lbNomePct);
+     		
+     	tfNomePct = new JTextField();
+     	tfNomePct.setPreferredSize(new Dimension(200, 24));
+     	panelNomePct.add(tfNomePct);
 
-		tfNomePct = new JTextField();
-		tfNomePct.setPreferredSize(new Dimension(200, 24));
-		panelNomePct.add(tfNomePct);
+     	panelNascimento = new JPanel();
+     	panelNascimento.setLayout(new FlowLayout());
 
-		panelNascimento = new JPanel();
-		panelNascimento.setLayout(new FlowLayout());
+     	lbNascimento = new JLabel("Dt Nascimento");
+     	lbNascimento.setPreferredSize(new Dimension(100, 24));
+     	lbNascimento.setVisible(true);
+     	panelNascimento.add(lbNascimento);
+     	    	
+     	UtilDateModel model = new UtilDateModel();
+     	Properties p = new Properties();
+     	p.put("text.today", "Hoje");
+     	p.put("text.month", "Month");
+     	p.put("text.year", "Year");
+     	datePanel = new JDatePanelImpl(model, p);
+     	datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+     	panelNascimento.add(datePicker);
 
-		lbNascimento = new JLabel("Dt Nascimento");
-		lbNascimento.setPreferredSize(new Dimension(50, 24));
-		lbNascimento.setVisible(true);
-		panelNascimento.add(lbNascimento);
+     	panelTelefonePct = new JPanel();
+     	panelTelefonePct.setLayout(new FlowLayout());
+     		
+     	lbTelefonePct = new JLabel("Telefone");
+     	lbTelefonePct.setPreferredSize(new Dimension(100, 24));
+     	lbTelefonePct.setVisible(true);
+     	panelTelefonePct.add(lbTelefonePct);
+     		
+     	tfTelefonePct = new JTextField();
+     	tfTelefonePct.setPreferredSize(new Dimension(200, 24));
+     	panelTelefonePct.add(tfTelefonePct);
 
-		tfNascimento = new JTextField();
-		tfNascimento.setPreferredSize(new Dimension(200, 24));
-		panelNascimento.add(tfNascimento);
+     	panelEnderecoPct = new JPanel();
+     	panelEnderecoPct.setLayout(new FlowLayout());
+     		
+     	lbEnderecoPct = new JLabel("Endereço");
+     	lbEnderecoPct.setPreferredSize(new Dimension(100, 24));
+     	lbEnderecoPct.setVisible(true);
+     	panelEnderecoPct.add(lbEnderecoPct);
+     		
+     	tfEnderecoPct = new JTextField();
+     	tfEnderecoPct.setPreferredSize(new Dimension(200, 24));
+     	panelEnderecoPct.add(tfEnderecoPct);
 
-		panelTelefonePct = new JPanel();
-		panelTelefonePct.setLayout(new FlowLayout());
+     	panelBotaoPct = new JPanel();
+     	panelBotaoPct.setLayout(new FlowLayout());
+     		
+     	btSalvarPct = new JButton("Adicionar");
+     	btSalvarPct.setBounds(50, 100, 95, 30);
+     	panelBotaoPct.add(btSalvarPct);
+     	
+        // Evento do botão Adicionar  
+     	btSalvarPct.addActionListener(new ActionListener(){
+	    	public void actionPerformed(ActionEvent e){
+	    		listaPacientes
+	    			.add(new Paciente(tfNomePct.getText(), (Date) datePicker.getModel().getValue(), tfTelefonePct.getText(), tfEnderecoPct.getText()));
+	    		TableModelPaciente modeloPaciente = new TableModelPaciente(listaPacientes);
+	    		tabelaPct.setModel(modeloPaciente);
+	        }
+	    });
 
-		lbTelefonePct = new JLabel("Telefone");
-		lbTelefonePct.setPreferredSize(new Dimension(50, 24));
-		lbTelefonePct.setVisible(true);
-		panelTelefonePct.add(lbTelefonePct);
-
-		tfTelefonePct = new JTextField();
-		tfTelefonePct.setPreferredSize(new Dimension(200, 24));
-		panelTelefonePct.add(tfTelefonePct);
-
-		panelEnderecoPct = new JPanel();
-		panelEnderecoPct.setLayout(new FlowLayout());
-
-		lbEnderecoPct = new JLabel("Endereço");
-		lbEnderecoPct.setPreferredSize(new Dimension(50, 24));
-		lbEnderecoPct.setVisible(true);
-		panelEnderecoPct.add(lbEnderecoPct);
-
-		tfEnderecoPct = new JTextField();
-		tfEnderecoPct.setPreferredSize(new Dimension(200, 24));
-		panelEnderecoPct.add(tfEnderecoPct);
-
-		panelBotaoPct = new JPanel();
-		panelBotaoPct.setLayout(new FlowLayout());
-
-		btSalvarPct = new JButton("Adicionar");
-		btSalvarPct.setBounds(50, 100, 95, 30);
-		panelBotaoPct.add(btSalvarPct);
-
-		// Evento do botão Adicionar
-		btSalvarPct.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Lógica aqui...
-				System.out.println("Faço paciente...");
-			}
-		});
-
-		panelFormPct = new JPanel();
-		panelFormPct.setLayout(new BoxLayout(panelFormPct, BoxLayout.Y_AXIS));
-
-		panelFormPct.add(panelNomePct);
-		panelFormPct.add(panelNascimento);
-		panelFormPct.add(panelTelefonePct);
-		panelFormPct.add(panelEnderecoPct);
-		panelFormPct.add(panelBotaoPct);
-
-		panelListaPct = new JPanel();
-		panelListaPct.setLayout(new FlowLayout());
-		panelListaPct.setPreferredSize(new Dimension(400, 30));
-
-		tabelaPct = new JTable();
-		panelListaPct.add(tabelaPct);
-
-		panelPaciente.setLayout(new BorderLayout());
-		panelPaciente.add(panelFormPct, BorderLayout.WEST);
-		panelPaciente.add(panelListaPct, BorderLayout.EAST);
+     	panelFormPct = new JPanel();
+     	panelFormPct.setLayout(new BoxLayout(panelFormPct, BoxLayout.Y_AXIS));
+     	
+     	panelFormPct.add(panelNomePct);
+     	panelFormPct.add(panelNascimento);
+     	panelFormPct.add(panelTelefonePct);
+     	panelFormPct.add(panelEnderecoPct);
+     	panelFormPct.add(panelBotaoPct);
+	    
+    	panelListaPct = new JPanel();
+    	panelListaPct.setLayout(new FlowLayout());
+    	panelListaPct.setPreferredSize(new Dimension(400, 30));
+	    
+    	tabelaPct = new JTable();
+	    panelListaPct.add(tabelaPct);
+	    
+	    panelPaciente.setLayout(new BorderLayout());
+	    panelPaciente.add(panelFormPct, BorderLayout.WEST);
+	    panelPaciente.add(panelListaPct, BorderLayout.EAST);
 	}
 
 	private void criarPainelExame() {
-
 		panelIdentificador = new JPanel();
 		panelIdentificador.setLayout(new FlowLayout());
 
 		lbIdentificador = new JLabel("Identificador");
-		lbIdentificador.setPreferredSize(new Dimension(50, 24));
+		lbIdentificador.setPreferredSize(new Dimension(100, 24));
 		lbIdentificador.setVisible(true);
 		panelIdentificador.add(lbIdentificador);
 
@@ -373,7 +393,7 @@ public class Tela extends JPanel {
 		panelTipoExame.setLayout(new FlowLayout());
 
 		lbTipoExame = new JLabel("Tipo");
-		lbTipoExame.setPreferredSize(new Dimension(50, 24));
+		lbTipoExame.setPreferredSize(new Dimension(100, 24));
 		lbTipoExame.setVisible(true);
 		panelTipoExame.add(lbTipoExame);
 
@@ -395,7 +415,7 @@ public class Tela extends JPanel {
 		panelDescricao.setLayout(new FlowLayout());
 
 		lbDescricao = new JLabel("Descrição");
-		lbDescricao.setPreferredSize(new Dimension(50, 24));
+		lbDescricao.setPreferredSize(new Dimension(100, 24));
 		lbDescricao.setVisible(true);
 		panelDescricao.add(lbDescricao);
 
@@ -407,7 +427,7 @@ public class Tela extends JPanel {
 		panelPreparo.setLayout(new FlowLayout());
 
 		lbPreparo = new JLabel("Preparo");
-		lbPreparo.setPreferredSize(new Dimension(50, 24));
+		lbPreparo.setPreferredSize(new Dimension(100, 24));
 		lbPreparo.setVisible(true);
 		panelPreparo.add(lbPreparo);
 
@@ -426,16 +446,17 @@ public class Tela extends JPanel {
 		btSalvarExame.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (cbTipoExame.getSelectedItem().equals("LABORATORIAL")) {
-					listaExames.add(
-							new ExameLaboratorial(tfIdentificador.getText(), tfDescricao.getText(), tfPreparo.getText()));
+					listaExames
+						.add(new ExameLaboratorial(tfIdentificador.getText(), tfDescricao.getText(), tfPreparo.getText()));
 				} else if (cbTipoExame.getSelectedItem().equals("IMAGEM")) {
 					listaExames
-							.add(new ExameImagem(tfIdentificador.getText(), tfDescricao.getText(), tfPreparo.getText()));
+						.add(new ExameImagem(tfIdentificador.getText(), tfDescricao.getText(), tfPreparo.getText()));
 				} 
 				
+				// Para desenhar a tabela
 				TableModelExame modeloExame = new TableModelExame(listaExames);
 				tabelaExame.setModel(modeloExame);
-				System.out.println("Adicionando exame...");
+				System.out.println("Adicionando exame: " + listaExames.get(listaExames.size() - 1).getDescricao());
 			}
 		});
 
@@ -461,91 +482,106 @@ public class Tela extends JPanel {
 	}
 
 	private void criarPainelAtendimento() {
+		
+		// Data
 		panelData = new JPanel();
 		panelData.setLayout(new FlowLayout());
 
 		lbData = new JLabel("Data");
-		lbData.setPreferredSize(new Dimension(50, 24));
+		lbData.setPreferredSize(new Dimension(100, 24));
 		lbData.setVisible(true);
 		panelData.add(lbData);
 
-		tfData = new JTextField("Ex.: 2021-abr-01");
-		tfData.setPreferredSize(new Dimension(200, 24));
-		panelData.add(tfData);
+		UtilDateModel model = new UtilDateModel();
+     	Properties p = new Properties();
+     	p.put("text.today", "Hoje");
+     	p.put("text.month", "Month");
+     	p.put("text.year", "Year");
+     	datePanelAtd = new JDatePanelImpl(model, p);
+     	datePickerAtd = new JDatePickerImpl(datePanelAtd, new DateLabelFormatter());
+     	datePickerAtd.setPreferredSize(new Dimension(200, 24));
+     	panelData.add(datePickerAtd);
 
+     	// Hora
 		panelHora = new JPanel();
 		panelHora.setLayout(new FlowLayout());
 
 		lbHora = new JLabel("Hora");
-		lbHora.setPreferredSize(new Dimension(50, 24));
+		lbHora.setPreferredSize(new Dimension(100, 24));
 		lbHora.setVisible(true);
 		panelHora.add(lbHora);
-
-		tfHora = new JTextField("Ex.: 12:10:00");
-		tfHora.setPreferredSize(new Dimension(200, 24));
-		panelHora.add(tfHora);
 		
+		Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 24); // 24 == 12 PM == 00:00:00
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        SpinnerDateModel spinnerDateModel = new SpinnerDateModel();
+        model.setValue(calendar.getTime());
+
+        JSpinner spinner = new JSpinner(spinnerDateModel);
+
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm:ss");
+        DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+        formatter.setAllowsInvalid(false); // this makes what you want
+        formatter.setOverwriteMode(true);
+        spinner.setPreferredSize(new Dimension(200, 24));
+
+        spinner.setEditor(editor);
+		panelHora.add(spinner);
+		
+		// Paciente
 		panelPacienteAtd = new JPanel();
 		panelPacienteAtd.setLayout(new FlowLayout());
 
 		lbPacienteAtd = new JLabel("Paciente");
-		lbPacienteAtd.setPreferredSize(new Dimension(50, 24));
+		lbPacienteAtd.setPreferredSize(new Dimension(100, 24));
 		lbPacienteAtd.setVisible(true);
 		panelPacienteAtd.add(lbPacienteAtd);
 
-		cbPaciente = new JComboBox<Paciente>();
+		cbPaciente = new JComboBox();
+		PacienteComboModel modeloComboPaciente = new PacienteComboModel(listaPacientes);
+		cbPaciente.setModel(modeloComboPaciente);
 		cbPaciente.setPreferredSize(new Dimension(200, 24));
 		panelPacienteAtd.add(cbPaciente);
 
-		cbPaciente.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				// Lógica aqui...
-			}
-		});
-
+		// Profissional
 		panelProfissionalAtd = new JPanel();
 		panelProfissionalAtd.setLayout(new FlowLayout());
 
 		lbProfissionalAtd = new JLabel("Profissional");
-		lbProfissionalAtd.setPreferredSize(new Dimension(50, 24));
+		lbProfissionalAtd.setPreferredSize(new Dimension(100, 24));
 		lbProfissionalAtd.setVisible(true);
 		panelProfissionalAtd.add(lbProfissionalAtd);
-
-		cbProfissional = new JComboBox<ProfissionalSaude>();
+		
+		cbProfissional = new JComboBox();
+		ProfissionalComboModel modeloComboProfissional = new ProfissionalComboModel(listaProfissionais);
+		cbProfissional.setModel(modeloComboProfissional);
 		cbProfissional.setPreferredSize(new Dimension(200, 24));
 		panelProfissionalAtd.add(cbProfissional);
-
-		cbProfissional.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0) {
-				// Lógica aqui...
-			}
-		});
 
 		panelBotaoAtd = new JPanel();
 		panelBotaoAtd.setLayout(new FlowLayout());
 
-		btSalvarAtd = new JButton("Adicionar");
+		btSalvarAtd = new JButton("Iniciar Atendimento");
 		btSalvarAtd.setBounds(50, 100, 95, 30);
 		panelBotaoAtd.add(btSalvarAtd);
 
 		// Evento do botão Adicionar
 		btSalvarAtd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Date data = (Date) datePickerAtd.getModel().getValue();
+				Date hora = (Date) spinner.getModel().getValue();
 				
-				Locale brazilLocale = new Locale("pt", "BR");
-				final DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-				           .parseCaseInsensitive()
-				           .appendPattern("yyyy-MMM-dd")
-				           .toFormatter(brazilLocale);
-				
-				LocalDate data = LocalDate.parse(tfData.getText(), formatter);
-				LocalTime hora = LocalTime.parse(tfHora.getText());
-				
-//				listaAtendimentos.add(new Atendimento(data, hora, cbPaciente.getSelectedItem(), cbProfissional.getSelectedItem()));
+				Atendimento atendimento = new Atendimento();
+				atendimento.setData(data);
+				atendimento.setHora(hora);
+				atendimento.registrar((Paciente) cbPaciente.getSelectedItem(), (ProfissionalSaude) cbProfissional.getSelectedItem());
+
+				listaAtendimentos.add(atendimento);
 	
 				TableModelAtendimento modeloAtendimento = new TableModelAtendimento(listaAtendimentos);
 				tabelaAtd.setModel(modeloAtendimento);
-				System.out.println("Faço atendimento...");
 			}
 		});
 
@@ -573,6 +609,7 @@ public class Tela extends JPanel {
 	public Tela() {
 		super(new GridLayout(1, 1));
 		listaProfissionais = new ArrayList<ProfissionalSaude>();
+		listaPacientes = new ArrayList<Paciente>();
 		listaExames = new ArrayList<Exame>();
 		listaAtendimentos = new ArrayList<Atendimento>();
 		tabbedPane = new JTabbedPane();
@@ -582,6 +619,8 @@ public class Tela extends JPanel {
 		criarPainelPaciente();
 		criarPainelExame();
 		criarPainelAtendimento();
+		
+		ExameImagem.setPerito("Dr. José Maciel");
 	}
 
 	protected JComponent makeTextPanel(String text) {
@@ -594,26 +633,19 @@ public class Tela extends JPanel {
 	}
 
 	private static void createAndShowGUI() {
-		// Create and set up the window.
 		JFrame frame = new JFrame("Trabalho POO - Clínica");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Add content to the window.
 		frame.add(new Tela(), BorderLayout.CENTER);
 
-		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
 	}
 
 	public static void main(String[] args) {
-		// Schedule a job for the event dispatch thread:
-		// creating and showing this application's GUI.
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				// Turn off metal's use of bold fonts
 				UIManager.put("swing.boldMetal", Boolean.FALSE);
-				ExameImagem.setPerito("Dr. José Maciel");
 				createAndShowGUI();
 			}
 		});

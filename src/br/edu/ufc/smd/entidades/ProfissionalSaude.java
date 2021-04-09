@@ -33,7 +33,7 @@ public abstract class ProfissionalSaude {
 	}
 	
 	public void atender(Paciente paciente) {
-		System.out.println(nome + " atendeu o paciente.");
+		System.out.println("O profissional " + nome + " atendeu o paciente " + paciente.getNome());
 	}
 	
 	@Override

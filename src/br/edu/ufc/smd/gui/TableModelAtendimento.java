@@ -1,5 +1,6 @@
 package br.edu.ufc.smd.gui;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -25,7 +26,6 @@ class TableModelAtendimento extends AbstractTableModel {
 		return atendimentos.size();
 	}
 
-	// this method is called to set the value of each cell
 	@Override
 	public Object getValueAt(int row, int column) {
 		Atendimento atendimento = null;
@@ -33,22 +33,24 @@ class TableModelAtendimento extends AbstractTableModel {
  
 		switch (column) {
 			case 0:
-				return atendimento.getData().toString();
+				String datePattern = "dd-MM-yyyy";
+		        SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+				return dateFormatter.format(atendimento.getData());
 			case 1:
-				return atendimento.getHora().toString();
+				datePattern = "HH:mm:ss";
+		        dateFormatter = new SimpleDateFormat(datePattern);
+				return dateFormatter.format(atendimento.getHora());
 			case 2:
-				return "";
+				return atendimento.getPaciente().toString();
 			case 3:
-				return "";
+				return atendimento.getProfissionalSaude().toString();
 			default :
 		}
 		return "";
 	}
 
-	// This method will be used to display the name of columns
 	 @Override
 	    public String getColumnName(int column) {
-		    System.out.println(COLUMN_NAMES[column]);
 	        return COLUMN_NAMES[column];
 	    }
 }

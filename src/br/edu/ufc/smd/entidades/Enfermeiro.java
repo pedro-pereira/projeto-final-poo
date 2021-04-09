@@ -14,6 +14,6 @@ public class Enfermeiro extends ProfissionalSaude {
 	}
 	
 	public void manterProntuario(Paciente paciente) {
-		System.out.println("Enfermeiro manteve o prontuário!");
+		System.out.println("O enfermeiro " + this.getNome() + " manteve o prontuário do paciente " + paciente);
 	}
 }

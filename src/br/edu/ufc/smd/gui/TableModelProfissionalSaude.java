@@ -19,45 +19,42 @@ class TableModelProfissionalSaude extends AbstractTableModel {
 	}
 
 	@Override
-    public int getColumnCount() {
-        return COLUMN_NAMES.length;
-    }
+	public int getColumnCount() {
+		return COLUMN_NAMES.length;
+	}
 
 	@Override
 	public int getRowCount() {
 		return profissionais.size();
 	}
 
-	// this method is called to set the value of each cell
 	@Override
 	public Object getValueAt(int row, int column) {
 		ProfissionalSaude profissionalSaude = null;
 		profissionalSaude = profissionais.get(row);
- 
+
 		switch (column) {
-			case 0:
-				if(profissionalSaude instanceof Medico) {
-					return "Médico";
-				} else if(profissionalSaude instanceof Enfermeiro) {
-					return "Enfermeiro";
-				} else if(profissionalSaude instanceof Tecnico) {
-					return "Técnico";
-				}
-			case 1:
-				return profissionalSaude.getRegistroConselho();
-			case 2:
-				return profissionalSaude.getNome();
-			case 3:
-				return profissionalSaude.getContato();
-			default :
+		case 0:
+			if (profissionalSaude instanceof Medico) {
+				return "Médico";
+			} else if (profissionalSaude instanceof Enfermeiro) {
+				return "Enfermeiro";
+			} else if (profissionalSaude instanceof Tecnico) {
+				return "Técnico";
+			}
+		case 1:
+			return profissionalSaude.getRegistroConselho();
+		case 2:
+			return profissionalSaude.getNome();
+		case 3:
+			return profissionalSaude.getContato();
+		default:
 		}
 		return "";
 	}
 
-	// This method will be used to display the name of columns
-	 @Override
-	    public String getColumnName(int column) {
-		    System.out.println(COLUMN_NAMES[column]);
-	        return COLUMN_NAMES[column];
-	    }
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
+	}
 }
